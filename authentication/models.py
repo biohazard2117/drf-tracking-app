@@ -4,6 +4,10 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserM
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from datetime import datetime, timedelta
+import jwt
+from django.conf import settings
+
 
 class MyUserManager(UserManager):
     def _create_user(self, username, email, password, **extra_fields):
@@ -12,7 +16,7 @@ class MyUserManager(UserManager):
             raise ValueError("The given username must be set")
         if not email:
             raise ValueError("The given email must be set")
-        
+
         email = self.normalize_email(email)
         username = self.model.normalize_username(username)
         user = self.model(username=username, email=email, **extra_fields)
@@ -56,7 +60,8 @@ class User(AbstractBaseUser, PermissionsMixin, Tracking):
     is_staff = models.BooleanField(
         _("staff status"),
         default=False,
-        help_text=_("Designates whether the user can log into this admin site."),
+        help_text=_(
+            "Designates whether the user can log into this admin site."),
     )
     is_active = models.BooleanField(
         _("active"),
@@ -80,7 +85,10 @@ class User(AbstractBaseUser, PermissionsMixin, Tracking):
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
-    
+
     @property
     def token(self):
-        return ''
+        token = jwt.encode({'username': self.username, 'email': self.email, 'exp': datetime.utcnow()+timedelta(hours=24)},
+                           settings.SECRET_KEY, algorithm='HS256')
+
+        return token
