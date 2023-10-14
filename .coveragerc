@@ -1,7 +1,8 @@
 [run]
-source = authentication/,todos/,
+source = authentication/,todo/
 omit = 
     venv 
     */migrations/*
     */__init__.py
+    */tests.py
     */tests/*
