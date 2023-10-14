@@ -2,8 +2,18 @@ from django.shortcuts import render
 from rest_framework.generics import GenericAPIView
 from .serializers import RegisterSerializer, LoginSerializer
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions
 from django.contrib.auth import authenticate
+from authentication.jwt import JWTAuthentication
+
+class AuthUserView(GenericAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = RegisterSerializer(user)
+        return Response({'user':serializer.data}, status=status.HTTP_200_OK)
 
 
 class RegisterView(GenericAPIView):
