@@ -33,4 +33,3 @@ class JWTAuthentication(BaseAuthentication):
         except User.DoesNotExist as no_user:
             raise exceptions.AuthenticationFailed("No user exists")
 
-        return super().authenticate(request)
